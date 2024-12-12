@@ -1,4 +1,5 @@
 module "mysql_sg" {
+    # source = "git::https://example.com/vpc.git?ref=main" # to call module from git
     source = "../../terraform-aws-security-group"
     project_name = var.project_name
     environment = var.environment
