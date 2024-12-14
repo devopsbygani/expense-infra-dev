@@ -19,3 +19,6 @@ variable "rds_tags" {
         components = "mysql"
     }
 }
+variable "zone_name" {
+    default = "devgani.online"
+}
