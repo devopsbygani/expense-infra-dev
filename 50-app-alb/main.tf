@@ -4,7 +4,7 @@ module "alb" {
 
   name    = "${local.resource_name}-app-alb" #expense-dev-app-alb
   vpc_id  = local.vpc_id
-  subnets = [local.private_subnet_id]
+  subnets = local.private_subnet_ids
   security_groups = [local.security_group_id]
   create_security_group = false
   enable_deletion_protection = false
@@ -40,7 +40,6 @@ module "records" {
     {
       name    = "*.app-${var.environment}"
       type    = "A"
-      ttl     = 1
       alias   = {
         name    = module.alb.dns_name
         zone_id = module.alb.zone_id
