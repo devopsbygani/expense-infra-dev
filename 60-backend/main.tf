@@ -40,7 +40,7 @@ resource "null_resource" "cluster" {
     # Bootstrap script called with private_ip of each node in the cluster
     command = [
       "chmod +x /tmp/backend.sh ",
-      "sudo sh /tmp/backend.sh ${var.backend_tags.Component} ${var.environment}",
+      "sudo sh /tmp/backend.sh ${var.backend_tags.component} ${var.environment}",
     ]
   }
 }
