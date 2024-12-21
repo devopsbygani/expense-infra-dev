@@ -22,3 +22,7 @@ data "aws_ami" "joindevops" {
         values = ["hvm"]
     }
 }
+
+data "aws_ssm_parameter" "public_subnet_ids" {
+  name  = "/${var.project_name}/${var.environment}/public_subnet_ids"
+}
