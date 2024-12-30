@@ -57,7 +57,7 @@ resource "aws_ami_from_instance" "backend" {
   depends_on = [aws_ec2_instance_state.backend]
 }
 
-resource "null_resource" "backend" {
+resource "null_resource" "backend_delete" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     instance_ids = module.backend.id  # this will trigger when instance id changes.
