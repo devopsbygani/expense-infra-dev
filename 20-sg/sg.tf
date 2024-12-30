@@ -231,8 +231,8 @@ resource "aws_security_group_rule" "app_alb_vpn" {
 
 resource "aws_security_group_rule" "backend_vpn" {
   type              = "ingress"
-  from_port         = 80
-  to_port           = 80
+  from_port         = 22
+  to_port           = 22
   protocol          = "tcp"
   source_security_group_id = module.vpn_sg.id
   security_group_id = module.backend_sg.id

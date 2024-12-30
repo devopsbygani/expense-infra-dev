@@ -8,7 +8,7 @@ module "backend" {
 #   key_name = aws_key_pair.openvpn.key_name (we are using local setup.)
   ami = data.aws_ami.joindevops.id
   instance_type          = "t2.micro"
-  vpc_security_group_ids = [local.vpn_sg_id]
+  vpc_security_group_ids = [local.backend_sg_id]
   subnet_id              = local.private_subnet_id
   tags = merge(var.common_tags,var.backend_tags,
   {
@@ -17,7 +17,7 @@ module "backend" {
   )
 }
 
-resource "null_resource" "cluster" {
+resource "null_resource" "backend" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     instance_ids = module.backend.id  # this will trigger when instance id changes.
@@ -33,15 +33,40 @@ resource "null_resource" "cluster" {
   }
 
    provisioner "file" {
-        source      = "${var.backend_tags.Component}.sh"
+        source      = "${var.backend_tags.component}.sh"
         destination = "/tmp/backend.sh"
     }
   provisioner "remote-exec" {
     # Bootstrap script called with private_ip of each node in the cluster
-    command = [
+    inline = [
       "chmod +x /tmp/backend.sh ",
       "sudo sh /tmp/backend.sh ${var.backend_tags.component} ${var.environment}",
     ]
   }
 }
 
+resource "aws_ec2_instance_state" "backend" {
+  instance_id = module.backend.id
+  state       = "stopped"
+  depends_on = [null_resource.backend]
+}
+
+resource "aws_ami_from_instance" "backend" {
+  name               = local.resource_name
+  source_instance_id = module.backend.id
+  depends_on = [aws_ec2_instance_state.backend]
+}
+
+resource "null_resource" "backend" {
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers = {
+    instance_ids = module.backend.id  # this will trigger when instance id changes.
+  }
+  
+  provisioner "local-exec" {
+    # Bootstrap script called with private_ip of each node in the cluster
+    command = "aws ec2 terminate-instances --instance-ids ${module.backend.id}"
+    
+  }
+ depends_on = [aws_ami_from_instance.backend] 
+}
