@@ -113,11 +113,13 @@ resource "aws_autoscaling_group" "backend" {
   health_check_grace_period = 100
   health_check_type         = "ELB"
   desired_capacity          = 2
+
   launch_template {
     id      = aws_launch_template.backend.id
     version = "$Latest"
   }
-  vpc_zone_identifier       = [local.backend_sg_id]
+
+  vpc_zone_identifier       = [local.private_subnet_id]
 
 
   tag {
