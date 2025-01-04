@@ -70,3 +70,85 @@ resource "null_resource" "backend_delete" {
   }
  depends_on = [aws_ami_from_instance.backend] 
 }
+
+# creating target group.
+resource "aws_lb_target_group" "backend" {
+  name     = local.resource_name
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = local.vpc_id
+
+  health_check {
+    healthy_threshold = 2        # check the target nodes 2 conxecutive times.
+    unhealthy_threshold = 2      # if failed continously 2 time consider as unhealtthy node.
+    interval = 5                 # every 5 sec it will do health check.
+    matcher = "200-299"        # sucess codes 
+    path = "/health"         # health check path
+    port = 8080             # tagert group instance port for tarffic 
+    protocol = "HTTP"      
+    timeout  = 4            # if server not resposnded within 4 sec consider as failure.
+
+  }
+}
+
+resource "aws_launch_template" "backend" {
+  name = local.resource_name
+  image_id = aws_ami_from_instance.backend.id
+  instance_initiated_shutdown_behavior = "terminate"
+  instance_type = "t2.micro"
+  vpc_security_group_ids = [local.backend_sg_id]
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = local.resource_name
+    }
+  }
+}
+
+resource "aws_autoscaling_group" "backend" {
+  name                      = local.resource_name
+  max_size                  = 10
+  min_size                  = 2
+  health_check_grace_period = 100
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  launch_template {
+    id      = aws_launch_template.backend.id
+    version = "$Latest"
+  }
+  vpc_zone_identifier       = [local.backend_sg_id]
+
+
+  tag {
+    key                 = "name"
+    value               = "backend"
+    propagate_at_launch = true
+  }
+# to delete the instanace if the instance is not healthy for more than 15 m
+  timeouts {
+    delete = "15m"
+  }
+
+  tag {
+    key                 = "project"
+    value               = "expense"
+    propagate_at_launch = false
+  }
+}
+
+resource "aws_autoscaling_policy" "backend" {
+  # ... other configuration ...
+  autoscaling_group_name = aws_autoscaling_group.backend.name
+  name                   = local.resource_name
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 70.0
+  }
+}
+
