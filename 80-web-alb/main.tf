@@ -11,7 +11,7 @@ module "alb" {
 
   tags = merge(
     var.common_tags,
-    var.app_alb_tags
+    var.web_alb_tags
     )
 }
 
@@ -34,7 +34,7 @@ resource "aws_lb_listener" "http" {
 resource "aws_lb_listener" "https" {
   load_balancer_arn = module.alb.arn
   port              = "443"
-  protocol          = "HTTP"
+  protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = local.https_certificate_arn
   default_action {
@@ -55,7 +55,7 @@ module "records" {
 
   records = [
     {
-      name    = "expense-${var.environment}"
+      name    = "expense-${var.environment}" #expense-dev.devgani.online
       type    = "A"
       alias   = {
         name    = module.alb.dns_name
