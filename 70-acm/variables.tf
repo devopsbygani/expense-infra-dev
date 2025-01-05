@@ -16,7 +16,7 @@ variable "common_tags" {
 
 variable "acm_tags" {
     default = {
-        component = "backend"
+        component = "acm"
     }
 }
 
