@@ -3,7 +3,7 @@
 # 3. stop the instance.
 # 4. create ami image.
 # 5. delete the instance.
-# 6. create target group. and launch template.
+# 6. create target group. and launch template. #done till here on 8 jan
 # 7. create auto scling group.
 # 8. create auto scaling policy.
 # 9. create a load balancer rule.
