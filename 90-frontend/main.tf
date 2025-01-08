@@ -3,7 +3,7 @@
 # 3. stop the instance.
 # 4. create ami image.
 # 5. delete the instance.
-# 6. create target group.
+# 6. create target group. and launch template.
 # 7. create auto scling group.
 # 8. create auto scaling policy.
 # 9. create a load balancer rule.
@@ -65,7 +65,7 @@ resource "aws_ami_from_instance" "frontend" {
   depends_on = [aws_ec2_instance_state.frontend]
 }
 
-resource "null_resource" "frontend" {
+resource "null_resource" "frontend_delete" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     instance_id = module.frontend.id
@@ -77,3 +77,37 @@ resource "null_resource" "frontend" {
   }
   depends_on = [aws_ami_from_instance.frontend]
 }
+
+resource "aws_lb_target_group" "frontend" {
+  name     = local.resource_name
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = local.vpc_id
+
+  health_check {
+    healthy_threshold = 2             # to check the nodes for 2 consecutive times.
+    unhealthy_threshold = 2           # if it is not responded for 2 times then consider as unhealthy
+    interval = 5                      # at every 5 sec interval healthcheck will process.
+    matcher = "200-299"               #  the http success code.
+    path = "/"                        
+    port = 80                         
+    protocol = "HTTP"
+    timeout = 4                       # if server not resposnded within 4 sec consider as failure
+  }
+}
+
+resource "aws_launch_template" "frontend" {
+  name = local.resource_name
+  image_id = aws_ami_from_instance.frontend.id
+  instance_initiated_shutdown_behavior = "terminate"
+  instance_type = "t2.micro"
+  vpc_security_group_ids = [local.frontend_sg_id]
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name = local.resource_name
+    }
+  }
+}
+
