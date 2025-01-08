@@ -38,7 +38,7 @@ module "records" {
 
   records = [
     {
-      name    = "*.app-${var.environment}"
+      name    = "*.app-${var.environment}"  # anything.app-dev.devgani.online
       type    = "A"
       alias   = {
         name    = module.alb.dns_name

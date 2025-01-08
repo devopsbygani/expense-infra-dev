@@ -80,7 +80,7 @@ module "records" {
 
   records = [
     {
-      name    = "mysql-${var.environment}"
+      name    = "mysql-${var.environment}"  #mysql-dev.devgani.online
       type    = "CNAME"
       ttl     = 1
       records = [
