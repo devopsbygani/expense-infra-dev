@@ -24,7 +24,7 @@ module "frontend" {
 }
 #configuring the frontend instance 
 
-resource "null_resource" "cluster" {
+resource "null_resource" "frontend" {
   # Changes to any instance of the cluster requires re-provisioning
   triggers = {
     instance_id = module.frontend.id
@@ -53,4 +53,27 @@ resource "null_resource" "cluster" {
   }
 }
 
+resource "aws_ec2_instance_state" "frontend" {
+  instance_id = module.frontend.id
+  state       = "stopped"
+  depends_on = [null_resource.frontend]
+}
 
+resource "aws_ami_from_instance" "frontend" {
+  name               = local.resource_name
+  source_instance_id = module.frontend.id
+  depends_on = [aws_ec2_instance_state.frontend]
+}
+
+resource "null_resource" "frontend" {
+  # Changes to any instance of the cluster requires re-provisioning
+  triggers = {
+    instance_id = module.frontend.id
+  }
+  provisioner "local-exec" {
+    # Bootstrap script called with private_ip of each node in the cluster
+    command = "aws ec2 terminate-instances --instance-ids ${module.frontend.id}",
+    
+  }
+  depends_on = [aws_ami_from_instance.frontend]
+}
