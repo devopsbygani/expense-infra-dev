@@ -19,3 +19,7 @@ variable "frontend_tags" {
         component = "frontend"
     }
 }
+
+variable "zone_name" {
+    default = "devgani.online"
+}

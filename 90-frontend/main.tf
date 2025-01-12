@@ -4,7 +4,7 @@
 # 4. create ami image.
 # 5. delete the instance.
 # 6. create target group. and launch template. #done till here on 8 jan
-# 7. create auto scling group.
+# 7. create auto scaling group.
 # 8. create auto scaling policy.
 # 9. create a load balancer rule.
 # creating instance
@@ -107,6 +107,75 @@ resource "aws_launch_template" "frontend" {
 
     tags = {
       Name = local.resource_name
+    }
+  }
+}
+
+resource "aws_autoscaling_group" "frontend" {
+  name                      = local.resource_name
+  max_size                  = 10
+  min_size                  = 2
+  health_check_grace_period = 100
+  health_check_type         = "ELB"
+  desired_capacity          = 2
+  vpc_zone_identifier       = [local.vpc_id]
+  target_group_arns = [aws_lb_target_group.frontend.arn]
+
+  launch_template {
+    id      = aws_launch_template.frontend.id
+    version = "$Latest"
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+    triggers = ["launch_template"]
+  }
+
+  
+  tag {
+    key                 = "name"
+    value               = "frontend"
+    propagate_at_launch = true
+  }
+
+  timeouts {
+    delete = "15m"
+  }
+
+  tag {
+    key                 = "project"
+    value               = "expense"
+    }
+}
+
+resource "aws_autoscaling_policy" "frontend" {
+  autoscaling_group_name = aws_autoscaling_group.frontend.name
+  name                   = local.resource_name
+  policy_type            = "TargetTrackingScaling"
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 70.0
+  }
+}
+
+resource "aws_lb_listener_rule" "frontend" {
+  listener_arn = local.web_lb_listener_arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend.arn
+  }
+
+  condition {
+    host_header {
+      values = ["${var.project_name}-${var.environment}.${var.zone_name}"] #expense-dev.devgani.online
     }
   }
 }
