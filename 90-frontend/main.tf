@@ -101,6 +101,7 @@ resource "aws_launch_template" "frontend" {
   image_id = aws_ami_from_instance.frontend.id
   instance_initiated_shutdown_behavior = "terminate"
   instance_type = "t2.micro"
+  update_default_version = true
   vpc_security_group_ids = [local.frontend_sg_id]
   tag_specifications {
     resource_type = "instance"
@@ -118,7 +119,7 @@ resource "aws_autoscaling_group" "frontend" {
   health_check_grace_period = 100
   health_check_type         = "ELB"
   desired_capacity          = 2
-  vpc_zone_identifier       = [local.vpc_id]
+  vpc_zone_identifier       = [local.public_subnet_id]
   target_group_arns = [aws_lb_target_group.frontend.arn]
 
   launch_template {
