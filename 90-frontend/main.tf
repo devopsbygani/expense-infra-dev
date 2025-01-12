@@ -72,7 +72,7 @@ resource "null_resource" "frontend_delete" {
   }
   provisioner "local-exec" {
     # Bootstrap script called with private_ip of each node in the cluster
-    command = "aws ec2 terminate-instances --instance-ids ${module.frontend.id}",
+    command = "aws ec2 terminate-instances --instance-ids ${module.frontend.id}"
     
   }
   depends_on = [aws_ami_from_instance.frontend]
