@@ -40,7 +40,7 @@ resource "null_resource" "frontend" {
   }
 
   provisioner "file" {
-    content     = "${var.frontend_tags.component}.sh"
+    source     = "${var.frontend_tags.component}.sh"
     destination = "/tmp/frontend.sh"
   }
 
