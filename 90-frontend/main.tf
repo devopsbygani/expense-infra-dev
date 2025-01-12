@@ -48,7 +48,7 @@ resource "null_resource" "frontend" {
     # Bootstrap script called with private_ip of each node in the cluster
     inline = [
       "chmod +x /tmp/frontend.sh",
-      "sudo sh /tmp/backend.sh ${var.frontend_tags.component} ${var.environment}",
+      "sudo sh /tmp/frontend.sh ${var.frontend_tags.component} ${var.environment}",
     ]
   }
 }
