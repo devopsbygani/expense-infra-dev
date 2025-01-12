@@ -47,7 +47,7 @@ resource "null_resource" "frontend" {
   provisioner "remote-exec" {
     # Bootstrap script called with private_ip of each node in the cluster
     inline = [
-      "chmod +x /tmp/frontend.sh",
+      "chmod +x /tmp/frontend.sh ",
       "sudo sh /tmp/frontend.sh ${var.frontend_tags.component} ${var.environment}",
     ]
   }
