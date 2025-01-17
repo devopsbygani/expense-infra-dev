@@ -9,7 +9,7 @@ module "vpn" {
   name = local.resource_name
   key_name = aws_key_pair.openvpn.key_name
   ami = data.aws_ami.joindevops.id
-  instance_type          = "t3.micro"
+  instance_type          = "t2.micro"
   vpc_security_group_ids = [local.vpn_sg_id]
   subnet_id              = local.public_subnet_id
   tags = merge(var.common_tags,var.vpn_tags,
