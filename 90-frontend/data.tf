@@ -35,3 +35,6 @@ data "aws_ssm_parameter" "web_lb_listener_arn" {
   name  = "/${var.project_name}/${var.environment}/web_lb_listener_arn"
 }
 
+data "aws_ssm_parameter" "public_subnet_ids" {
+name  = "/${var.project_name}/${var.environment}/public_subnet_ids"
+}
