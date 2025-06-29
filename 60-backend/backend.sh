@@ -1,7 +1,7 @@
 #!/bin/bash
 
-component=$1
-environment=$2
+component=$1  # backend
+environment=$2 #dev
 #printing the above variable.
 echo -e "component:${component}, environment:${environment}"
 dnf install ansible -y 

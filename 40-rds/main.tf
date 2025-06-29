@@ -3,7 +3,7 @@ module "db" {
 
   identifier = local.resource_name  #expense-dev
 
-  engine            = "mysql"
+  engine            = "mysql"  # postgress,mysql,oracle
   engine_version    = "8.0"
   instance_class    = "db.t3.micro"
   allocated_storage = 5

@@ -33,7 +33,7 @@ resource "null_resource" "backend" {
   }
 
    provisioner "file" {
-        source      = "${var.backend_tags.component}.sh"
+        source      = "${var.backend_tags.component}.sh"  #backend.sh
         destination = "/tmp/backend.sh"
     }
   provisioner "remote-exec" {
@@ -87,6 +87,7 @@ resource "aws_lb_target_group" "backend" {
     port = 8080             # tagert group instance port for tarffic 
     protocol = "HTTP"      
     timeout  = 4            # if server not resposnded within 4 sec consider as failure.
+
 
   }
 }
